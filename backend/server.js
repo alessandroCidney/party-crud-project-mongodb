@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 
 // routes
+const authRouter = require('./routes/authRoutes.js')
 
 // middlewares
 
@@ -21,6 +22,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 app.use(express.static('public'))
+
+app.use('/api/auth', authRouter)
 
 // mongodb connection
 
