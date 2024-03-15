@@ -9,6 +9,7 @@ const cors = require('cors')
 
 // routes
 const authRouter = require('./routes/authRoutes.js')
+const userRouter = require('./routes/userRoutes.js')
 
 // middlewares
 
@@ -24,6 +25,7 @@ app.use(express.json())
 app.use(express.static('public'))
 
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 // mongodb connection
 

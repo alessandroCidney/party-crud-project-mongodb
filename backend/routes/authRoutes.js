@@ -60,7 +60,7 @@ router.post('/register', async (req, res) => {
       userId: newUser._id,
     })
   } catch (error) {
-    res.status(400).json({ error })
+    return res.status(400).json({ error })
   }
 })
 
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
   const user = await User.findOne({ email })
 
   if (!user) {
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Não há um usuário cadastrado com este e-mail!',
     })
   }
@@ -81,7 +81,7 @@ router.post('/login', async (req, res) => {
   const checkPassword = await bcrypt.compare(password, user.password);
 
   if (!checkPassword) {
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Senha incorreta!',
     })
   }
@@ -104,7 +104,7 @@ router.post('/login', async (req, res) => {
       userId: user._id,
     })
   } catch (error) {
-    res.status(400).json({ error })
+    return res.status(400).json({ error })
   }
 })
 
