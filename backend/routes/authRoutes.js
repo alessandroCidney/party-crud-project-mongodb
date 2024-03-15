@@ -38,7 +38,74 @@ router.post('/register', async (req, res) => {
   const salt = await bcrypt.genSalt(12)
   const passwordHash = await bcrypt.hash(password, salt)
 
-  console.log(passwordHash)
+  const user = new User({ name, email, password: passwordHash })
+
+  try {
+    const newUser = await user.save()
+
+    // Create token
+    const token = jwt.sign(
+      // payload
+      {
+        name: newUser.name,
+        id: newUser._id,
+      },
+      'testsecret',
+    )
+
+    res.json({
+      error: null,
+      msg: 'Você realizou o cadastro com sucesso!',
+      token,
+      userId: newUser._id,
+    })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+})
+
+// login an user
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body
+
+  // Check if user exists
+  const user = await User.findOne({ email })
+
+  if (!user) {
+    res.status(400).json({
+      error: 'Não há um usuário cadastrado com este e-mail!',
+    })
+  }
+
+  // check if password match
+  const checkPassword = await bcrypt.compare(password, user.password);
+
+  if (!checkPassword) {
+    res.status(400).json({
+      error: 'Senha incorreta!',
+    })
+  }
+
+  try {
+    // Create token
+    const token = jwt.sign(
+      // payload
+      {
+        name: user.name,
+        id: user._id,
+      },
+      'testsecret',
+    )
+
+    res.json({
+      error: null,
+      msg: 'Você está autenticado!',
+      token,
+      userId: user._id,
+    })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
 })
 
 module.exports = router
