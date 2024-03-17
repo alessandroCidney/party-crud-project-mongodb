@@ -10,6 +10,7 @@ const cors = require('cors')
 // routes
 const authRouter = require('./routes/authRoutes.js')
 const userRouter = require('./routes/userRoutes.js')
+const partyRouter = require('./routes/partyRoutes.js')
 
 // middlewares
 
@@ -26,6 +27,7 @@ app.use(express.static('public'))
 
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
+app.use('/api/party', partyRouter)
 
 // mongodb connection
 
