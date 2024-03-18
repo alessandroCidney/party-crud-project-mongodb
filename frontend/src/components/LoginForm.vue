@@ -2,26 +2,17 @@
   <div>
     <Message :msg="msg" :msgClass="msgClass" />
 
-    <form id="user-form" @submit.prevent="page === 'register' ? register($event) : update($event)">
-      <div class="input-container">
-        <label for="name">Nome:</label>
-
-        <input
-          v-model="name"
-          placeholder="Digite o seu nome"
-          type="text"
-          name="name"
-          id="name"
-        >
-      </div>
-
+    <form
+      id="login-form"
+      @submit.prevent="login"
+    >
       <div class="input-container">
         <label for="email">E-mail:</label>
 
         <input
           v-model="email"
           placeholder="Digite o seu e-mail"
-          type="text"
+          type="email"
           name="email"
           id="email"
         >
@@ -39,19 +30,9 @@
         >
       </div>
 
-      <div class="input-container">
-        <label for="confirmpassword">Confirmar senha:</label>
-
-        <input
-          v-model="confirmpassword"
-          placeholder="Confirme a sua senha"
-          type="password"
-          name="confirmpassword"
-          id="confirmpassword"
-        >
-      </div>
-
-      <input-submit :text="btnText" />
+      <InputSubmit
+        text="Entrar"
+      />
     </form>
   </div>
 </template>
@@ -63,11 +44,12 @@ import InputSubmit from './form/InputSubmit.vue'
 import Message from './Message.vue'
 
 export default {
-  name: 'RegisterForm',
+  name: 'LoginForm',
 
-  components: { InputSubmit, Message },
-
-  props: ['user', 'page', 'btnText'],
+  components: {
+    InputSubmit,
+    Message,
+  },
 
   setup () {
     const mainStore = useMainStore()
@@ -76,29 +58,24 @@ export default {
 
   data () {
     return {
-      name: null,
       email: null,
       password: null,
-      confirmpassword: null,
-
-      msg: null as string | null,
+      msg: null,
       msgClass: null as string | null,
     }
   },
 
   methods: {
-    async register (e: Event) {
+    async login (e: Event) {
       const data = {
-        name: this.name,
         email: this.email,
         password: this.password,
-        confirmpassword: this.confirmpassword,
       }
 
       const jsonData = JSON.stringify(data)
 
       try {
-        const response = await fetch('http://localhost:3000/api/auth/register', {
+        const response = await fetch('http://localhost:3000/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: jsonData,
@@ -113,7 +90,6 @@ export default {
           this.msgClass = 'error'
         } else {
           auth = true
-
           this.msg = responseData.msg
           this.msgClass = 'success'
 
@@ -135,19 +111,14 @@ export default {
         console.log(err)
       }
     },
-
-    update (e: Event) {
-
-    },
   }
 }
 </script>
 
 <style scoped>
-#user-form {
+#login-form {
   max-width: 400px;
   margin: 0 auto;
-
   display: flex;
   flex-direction: column;
 }

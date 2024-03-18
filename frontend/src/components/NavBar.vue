@@ -7,16 +7,75 @@
     <h2 id="nav-title">Party Time</h2>
 
     <div id="nav-links">
-      <router-link to="/">Home</router-link>
-      <router-link to="/about">Entrar</router-link>
-      <router-link to="/register">Cadastrar</router-link>
+      <router-link
+        to="/"
+      >
+        Home
+      </router-link>
+
+      <router-link
+        v-show="!isAuthenticated"
+        to="/login"
+      >
+        Entrar
+      </router-link>
+
+      <router-link
+        v-show="!isAuthenticated"
+        to="/register"
+      >
+        Cadastrar
+      </router-link>
+
+      <router-link
+        v-show="isAuthenticated"
+        to="/dashboard"
+      >
+        Dashboard
+      </router-link>
+
+      <router-link
+        v-show="isAuthenticated"
+        to="/profile"
+      >
+        Configurações
+      </router-link>
+
+      <button
+        v-show="isAuthenticated"
+        @click="logout"
+      >
+        Logout
+      </button>
     </div>
   </div>
 </template>
 
 <script>
+import { useMainStore } from '@/stores/main'
+
 export default {
-  name: 'NavBar'
+  name: 'NavBar',
+
+  setup () {
+    return {
+      mainStore: useMainStore(),
+    }
+  },
+
+  computed: {
+    isAuthenticated () {
+      return this.mainStore.authenticated
+    },
+  },
+
+  methods: {
+    logout (e) {
+      this.mainStore.logout()
+
+      this.$router.push('/')
+    },
+  },
 }
 </script>
 
