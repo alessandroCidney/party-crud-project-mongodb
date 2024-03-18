@@ -2,7 +2,17 @@
   <div>
     <Message :msg="msg" :msgClass="msgClass" />
 
-    <form id="user-form" @submit.prevent="page === 'register' ? register($event) : update($event)">
+    <form
+      id="user-form"
+      @submit.prevent="page === 'register' ? register($event) : update($event)"
+    >
+      <input
+        v-model="id"
+        type="hidden"
+        name="id"
+        id="id"
+      >
+      
       <div class="input-container">
         <label for="name">Nome:</label>
 
@@ -76,8 +86,9 @@ export default {
 
   data () {
     return {
-      name: null,
-      email: null,
+      id: this.user._id || null,
+      name: this.user.name || null,
+      email: this.user.email || null,
       password: null,
       confirmpassword: null,
 
@@ -136,8 +147,49 @@ export default {
       }
     },
 
-    update (e: Event) {
+    async update (e: Event) {
+      const data = {
+        id: this.id,
+        name: this.name,
+        email: this.email,
+        password: this.password,
+        confirmpassword: this.confirmpassword,
+      }
 
+      const jsonData = JSON.stringify(data)
+
+      const token = this.mainStore.token
+
+      if (!token) {
+        throw new Error('The user is not authenticated!')
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/api/user', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token,
+          },
+          body: jsonData,
+        })
+
+        const responseData = await response.json()
+
+        if (responseData.error) {
+          this.msg = responseData.error
+          this.msgClass = 'error'
+        } else {
+          this.msg = responseData.msg
+          this.msgClass = 'success'
+        }
+
+        setTimeout(() => {
+          this.msg = null
+        }, 2000)
+      } catch (err) {
+        console.log(err)
+      }
     },
   }
 }
