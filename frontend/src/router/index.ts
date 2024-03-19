@@ -75,6 +75,11 @@ const router = createRouter({
         requiresAuth: true,
       }
     },
+    {
+      path: '/party/:id',
+      name: 'Party',
+      component: () => import('../views/PartyView.vue'),
+    },
   ]
 })
 
