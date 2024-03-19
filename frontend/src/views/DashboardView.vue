@@ -7,7 +7,7 @@
     </div>
 
     <div v-if="parties.length > 0">
-      <h1>Tabela de festas</h1>
+      <data-table :parties="parties" />
     </div>
 
     <div v-else>
@@ -20,13 +20,56 @@
 </template>
 
 <script lang="ts">
+import DataTable from '@/components/DataTable.vue'
+
+import { useMainStore } from '@/stores/main'
+
 export default {
   name: 'DashboardView',
+
+  components: { DataTable },
+
+  setup () {
+    return {
+      mainStore: useMainStore(),
+    }
+  },
 
   data () {
     return {
       parties: [],
     }
+  },
+
+  created () {
+    // load user parties
+    this.getParties()
+  },
+
+  methods: {
+    async getParties () {
+      const token = this.mainStore.token
+
+      try {
+        if (!token) {
+          throw new Error('User is not authenticated')
+        }
+
+        const response = await fetch('http://localhost:3000/api/party/userparties', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token,
+          }
+        })
+
+        const responseData = await response.json()
+
+        this.parties = responseData.parties
+      } catch (err) {
+        console.log(err)
+      }
+    },
   },
 }
 </script>
