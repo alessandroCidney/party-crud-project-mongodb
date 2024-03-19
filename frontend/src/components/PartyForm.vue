@@ -98,6 +98,8 @@
 </template>
 
 <script>
+import { useMainStore } from '@/stores/main'
+
 import Message from './Message.vue'
 import InputSubmit from './form/InputSubmit.vue'
 
@@ -108,13 +110,19 @@ export default {
 
   props: ['party', 'page', 'btnText'],
 
+  setup () {
+    return {
+      mainStore: useMainStore(),
+    }
+  },
+
   data () {
     return {
       id: this.party._id || null,
       title: this.party.title || null,
       description: this.party.description || null,
       party_date: this.party.partyDate || null,
-      photos: this.party.photos || null,
+      photos: this.party.photos || [],
       privacy: this.party.privacy || false,
       user_id: this.party.userId || null,
 
@@ -127,7 +135,51 @@ export default {
 
   methods: {
     async createParty (e) {
+      const formData = new FormData()
 
+      formData.append('title', this.title)
+      formData.append('description', this.description)
+      formData.append('party_date', this.party_date)
+      formData.append('privacy', this.privacy)
+
+      if (this.photos.length > 0) {
+        for (const photoItem of this.photos) {
+          formData.append('photos', photoItem)
+        }
+      }
+
+      // get token from store
+      const token = this.mainStore.token
+
+      try {
+        const response = await fetch('http://localhost:3000/api/party', {
+          method: 'POST',
+          headers: {
+            'auth-token': token
+          },
+          body: formData
+        })
+
+        const responseData = await response.json()
+
+        if (responseData.error) {
+          this.msg = responseData.error
+          this.msgClass = 'error'
+        } else {
+          this.msg = responseData.msg
+          this.msgClass = 'success'
+        }
+
+        setTimeout(() => {
+          this.msg = null
+
+          if (!responseData.error) {
+            this.$router.push('dashboard')
+          }
+        }, 2000)
+      } catch (err) {
+        console.log(err)
+      }
     },
 
     async update (e) {
