@@ -67,6 +67,14 @@ const router = createRouter({
         requiresAuth: true,
       }
     },
+    {
+      path: '/editparty/:id',
+      name: 'EditParty',
+      component: () => import('../views/EditPartyView.vue'),
+      meta: {
+        requiresAuth: true,
+      }
+    },
   ]
 })
 

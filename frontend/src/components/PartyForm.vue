@@ -97,7 +97,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useMainStore } from '@/stores/main'
 
 import Message from './Message.vue'
@@ -127,14 +127,14 @@ export default {
       user_id: this.party.userId || null,
 
       msg: null,
-      msgClass: null,
+      msgClass: null as string | null,
 
       showMiniImages: true,
     }
   },
 
   methods: {
-    async createParty (e) {
+    async createParty (e: Event) {
       const formData = new FormData()
 
       formData.append('title', this.title)
@@ -152,6 +152,10 @@ export default {
       const token = this.mainStore.token
 
       try {
+        if (!token) {
+          throw new Error('User is not authenticated')
+        }
+
         const response = await fetch('http://localhost:3000/api/party', {
           method: 'POST',
           headers: {
@@ -182,13 +186,64 @@ export default {
       }
     },
 
-    async update (e) {
+    async update (e: Event) {
+      const formData = new FormData()
 
+      formData.append('id', this.id)
+      formData.append('title', this.title)
+      formData.append('description', this.description)
+      formData.append('party_date', this.party_date)
+      formData.append('privacy', this.privacy)
+      formData.append('user_id', this.user_id)
+
+      if (this.photos.length > 0) {
+        for (const photoItem of this.photos) {
+          formData.append('photos', photoItem)
+        }
+      }
+
+      // get token from store
+      const token = this.mainStore.token
+
+      try {
+        if (!token) {
+          throw new Error('User is not authenticated')
+        }
+
+        const response = await fetch('http://localhost:3000/api/party', {
+          method: 'PATCH',
+          headers: {
+            'auth-token': token
+          },
+          body: formData
+        })
+
+        const responseData = await response.json()
+
+        if (responseData.error) {
+          this.msg = responseData.error
+          this.msgClass = 'error'
+        } else {
+          this.msg = responseData.msg
+          this.msgClass = 'success'
+        }
+
+        setTimeout(() => {
+          this.msg = null
+        }, 2000)
+      } catch (err) {
+        console.log(err)
+      }
     },
 
-    onChange (e) {
-      this.photos = e.target.files
-      this.showMiniImages = false
+    onChange (e: Event) {
+      const target = e.target
+
+      if (target instanceof HTMLInputElement) {
+        console.log('change!')
+        this.photos = target.files
+        this.showMiniImages = false
+      }
     },
   }
 }

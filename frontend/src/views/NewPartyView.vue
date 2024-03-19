@@ -10,7 +10,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import PartyForm from '@/components/PartyForm.vue'
 
 export default {
