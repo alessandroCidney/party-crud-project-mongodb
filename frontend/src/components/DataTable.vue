@@ -53,6 +53,8 @@
 </template>
 
 <script lang="ts">
+import { useMainStore } from '@/stores/main'
+
 import Message from './Message.vue'
 
 export default {
@@ -60,18 +62,69 @@ export default {
 
   components: { Message },
 
+  setup () {
+    return {
+      mainStore: useMainStore(),
+    }
+  },
+
+  emits: ['remove'],
+
   props: ['parties'],
 
   data () {
     return {
       msg: null,
-      msgClass: null,
+      msgClass: null as string | null,
     }
   },
 
   methods: {
-    remove (partyId: string) {
+    async remove (id: string) {
+      const token = this.mainStore.token
+      const userId = this.mainStore.userId
 
+      const data  = {
+        id,
+        userId,
+      }
+
+      const jsonData = JSON.stringify(data)
+
+      try {
+        if (!token) {
+          throw new Error('User is not authenticated')
+        }
+
+        const response = await fetch('http://localhost:3000/api/party', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token,
+          },
+          body: jsonData,
+        })
+
+        const responseData = await response.json()
+
+        if (responseData.error) {
+          this.msg = responseData.error
+          this.msgClass = 'error'
+        } else {
+          this.msg = responseData.msg
+          this.msgClass = 'success'
+        }
+
+        setTimeout(() => {
+          this.msg = null
+
+          // get all parties again
+
+          this.$emit('remove')
+        }, 1000)
+      } catch (err) {
+        console.log(err)
+      }
     },
   }
 }

@@ -7,7 +7,10 @@
     </div>
 
     <div v-if="parties.length > 0">
-      <data-table :parties="parties" />
+      <data-table
+        :parties="parties"
+        @remove="getParties"
+      />
     </div>
 
     <div v-else>
